@@ -27,5 +27,8 @@ jobs:
     - name: Build Windows
       run: env GOOS=windows GOARCH=amd64 go build -v ./...
 
-    - name: list folder
-      run: find .
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: verdeployed
+        path: ./verdeployed*
