@@ -22,6 +22,7 @@ var (
 )
 
 type Cfg struct {
+	Region       string        `conf:"default:us-east-1"`
 	PipelineName string        `conf:""`
 	Bucket       string        `conf:""`
 	Key          string        `conf:"default:version.zip"`
@@ -65,7 +66,7 @@ func main() {
 
 	// =========================================================================
 	// AWS Session
-	sess, err := session.NewSession(aws.NewConfig().WithRegion("eu-central-1"))
+	sess, err := session.NewSession(aws.NewConfig().WithRegion(cfg.Region))
 	if err != nil {
 		fmt.Printf("session error: %v", err)
 		os.Exit(1)
