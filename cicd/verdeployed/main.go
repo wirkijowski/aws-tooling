@@ -39,9 +39,6 @@ func main() {
 		commit          string
 	}
 
-	type stageDetailsList []stageDetails
-	//var sd stageDetailsList
-
 	// =========================================================================
 	// Configuration
 	var cfg Cfg
@@ -80,16 +77,13 @@ func main() {
 	}
 
 	state, err := pipelnsvc.GetPipelineState(pipelnStateInput)
-	//fmt.Println(state)
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			default:
-				fmt.Println(aerr.Error())
+				fmt.Printf("failed to get pipeline state: %s\n", aerr.Message())
 			}
 		} else {
-			// Prin the error, cat err to awserr.Error to get the Code and
-			// Message from an error.
 			fmt.Println(err.Error())
 		}
 		os.Exit(1)
@@ -122,8 +116,6 @@ func main() {
 		// if stage is from current pipeline execution save revision Id
 		if execId == details.executionId {
 			details.revisionId = revid
-			// retrieve
-
 			// if stage was executed earlier - not in this run - retrieve
 			// revision id from that execution
 		} else {
@@ -156,18 +148,15 @@ func main() {
 		}
 		meta, err := getMetadataFromRevision(sess, cfg, details.revisionId)
 		if err != nil {
-			fmt.Printf("%v\n", err)
+			fmt.Printf("get metadata from file revision: %v\n", err)
+			os.Exit(1)
 		}
 
 		details.versionDeployed = *meta["Version"]
 		details.commit = *meta["Commit"]
 
-		//sd = append(sd, details)
-
 		fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\n", details.name, details.status, details.versionDeployed, details.executionId)
-
 	}
-
 }
 
 func getMetadataFromRevision(s *session.Session, cfg Cfg, ver string) (map[string]*string, error) {
@@ -182,19 +171,16 @@ func getMetadataFromRevision(s *session.Session, cfg Cfg, ver string) (map[strin
 	}
 
 	result, err := svc.HeadObject(input)
-
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
 			default:
-				fmt.Println(aerr.Error())
+				return make(map[string]*string), fmt.Errorf("failed to retrieve version metadata: %s", aerr.Message())
 			}
 		} else {
-			// Prin the error, cat err to awserr.Error to get the Code and
-			// Message from an error.
-			fmt.Println(err.Error())
+			return make(map[string]*string), err
 		}
-		return make(map[string]*string), err
+
 	}
 	return result.Metadata, nil
 }
