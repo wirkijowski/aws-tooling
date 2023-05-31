@@ -36,6 +36,7 @@ func main() {
 		status          string
 		revisionId      string
 		versionDeployed string
+		releaseUrl      string
 		commit          string
 	}
 
@@ -90,8 +91,8 @@ func main() {
 	}
 	var execId, revid string
 
-	fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\n", "Stage", "Status", "Version", "ExecutionID")
-	fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\n", "----", "----", "----", "----")
+	fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\t\t%s\n", "Stage", "Status", "Version", "Release URL", "ExecutionID")
+	fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\t\t%s\n", "----", "----", "----", "----", "----")
 
 	// Get&Print every stage details
 	for _, stage := range state.StageStates {
@@ -152,10 +153,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		details.versionDeployed = *meta["Version"]
+		details.versionDeployed = *meta["Release"]
 		details.commit = *meta["Commit"]
+		details.releaseUrl = *meta["Release-Url"]
 
-		fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\n", details.name, details.status, details.versionDeployed, details.executionId)
+		fmt.Fprintf(w, "%s\t%s\t%s\t\t%s\t\t%s\n", details.name, details.status, details.versionDeployed, details.releaseUrl, details.executionId)
 	}
 }
 
